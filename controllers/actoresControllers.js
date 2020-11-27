@@ -99,17 +99,32 @@ const updateActor=async(req,res)=>{
 //crea Actor
 const createActor=async(req,res)=>{
     try {
-        const {nombrecompleto, fechadenacimiento, sexo,foto}=req.body
-        const response= await pool.query('INSERT INTO actores (nombrecompleto, fechadenacimiento, sexo,foto) VALUES ($1,$2,$3,$4)',[
-            nombrecompleto, 
-            fechadenacimiento,
-            sexo,
-            foto
-        ])
 
-        res.json({
-            message:"Actor/Actriz Agregado con Exito"
-        })
+        
+        const {nombrecompleto, fechadenacimiento, sexo,foto}=req.body
+
+        const resultado= await pool.query(`SELECT * FROM actores where nombrecompleto=$1`,[nombrecompleto]);
+       
+        if (resultado.rowCount>=1) {
+           return res.json({
+              ok:false,
+              message: "Ya Existe Un Actor con Ese Nombre"
+              
+              })}
+              else{
+                const response= await pool.query('INSERT INTO actores (nombrecompleto, fechadenacimiento, sexo,foto) VALUES ($1,$2,$3,$4)',[
+                    nombrecompleto, 
+                    fechadenacimiento,
+                    sexo,
+                    foto
+                ])
+        
+                res.json({
+                    message:"Actor/Actriz Agregado con Exito"
+                })
+              }
+
+       
         
     } catch (error) {
         res.status(500).json({

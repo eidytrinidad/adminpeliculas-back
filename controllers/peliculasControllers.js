@@ -99,17 +99,31 @@ const updatePelicula = async (req, res) => {
 const createPeliculas = async (req, res) => {
   try {
     const { titulo, genero, fechadeestreno, foto } = req.body;
-    const response = await pool.query(
-      "INSERT INTO peliculas (titulo,genero,fechadeestreno,foto) VALUES($1,$2,$3,$4)",
-      [titulo, genero, fechadeestreno, foto]
-    );
-    console.log(response);
-    res.json({
-      message: "Pelicula Agregada con Exito",
-      body: {
-        pelicula: { titulo, genero, fechadeestreno, foto },
-      },
-    });
+
+    const resultado= await pool.query(`SELECT * FROM peliculas where titulo=$1`,[titulo]);
+
+   
+    if (resultado.rowCount>=1) {
+      res.json({
+        ok:false,
+        message: "Ya Existe Una Pelicula con ese titulo"
+        
+        })
+    } else {
+      const response = await pool.query(
+        "INSERT INTO peliculas (titulo,genero,fechadeestreno,foto) VALUES($1,$2,$3,$4)",
+        [titulo, genero, fechadeestreno, foto]
+      );
+      console.log(response);
+      res.json({
+        message: "Pelicula Agregada con Exito",
+        body: {
+          pelicula: { titulo, genero, fechadeestreno, foto },
+        },
+      });
+    }
+
+
   } catch (error) {
     res.status(500).json({
       message: `Error ${error}`,
